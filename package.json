@@ -1,8 +1,11 @@
 {
   "name": "feathers-reduxify-authentication",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Wrap feathers.authentication so it works transparently with Redux, as well as authentication, authorization packages for React-Router.",
-  "files": ["index.js", "test"],
+  "files": [
+    "index.js",
+    "test"
+  ],
   "main": "lib/",
   "directories": {
     "lib": "lib"
