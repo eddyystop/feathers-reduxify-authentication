@@ -2,43 +2,36 @@
 Wrap feathers.authentication so it works transparently with Redux, as well as authentication, authorization packages for React-Router.
 
 [![Build Status](https://travis-ci.org/eddyystop/feathers-reduxify-authentication.svg?branch=master)](https://travis-ci.org/eddyystop/feathers-reduxify-authentication)
-[![Coverage Status](https://coveralls.io/repos/github/eddyystop/feathers-reduxify-authentication/badge.svg?branch=master)](https://coveralls.io/github/eddyystop/feathers-reduxify-authentication?branch=master)
 
-- Work with standard `feathers.authentication` on the client.
-- Dispatch feathers authentication to Redux.
+- Work with standard `feathers-client.authentication` on the client.
+- Dispatch feathers authentication and logout to Redux.
 - Integrate with `react-router` and `react-router-redux`.
-- Use popular Redux, React-Router authentication and authorization packages such as
-[redux-auth-wrapper](https://github.com/mjrussell/redux-auth-wrapper)
+- Use popular Redux, React-Router authentication and authorization packages for React routing.
 
 Transfering production code here. Wait for 0.1.0.
 
-## Code Example
+## Code Examples
+
+- [What we want to be able to do](#todo)
+- [Making feathers-client.authentication work with Redux](#reduxifying)
+- [Working example](#workingexample)
+
+### <a name="todo"></a> What we want to be able to do
+
+This is typical code for React routing and permissions.
 
 ```javascript
-const feathersReduxifyAuthentication = require('feathers-reduxify-authentication');
-// Configure feathers-client
-const app = feathers().configure(feathers.authentication({ ... });
-
-// Reduxify feathers-authentication
-feathersAuthentication = reduxifyAuthentication(app,
-  { isUserAuthorized: (user) => user.isVerified } // we insist user is 'verified' to authenticate
-);
-// Add Redux reducer
-combineReducers({ ..., auth: feathersAuthentication.reducer, ...});
-
-// Dispatch actions as needed. Params are the same as for feathers.authentication().
-dispatch(feathersAuthentication.authenticate({ type: 'local', email, password })).then().catch();
-dispatch(feathersAuthentication.logout());
-
-// Use Redux authentication, authorization packages to control React routes.
 import { UserAuthWrapper } from 'redux-auth-wrapper';
+
+// Define permissions
 const UserIsAuthenticated = UserAuthWrapper({
-  // extract user data from state
-  authSelector: (state) => state.auth.user, // THE REASON TO USE THIS REPO
+  authSelector: (state) => state.auth.user, // BEING ABLE TO DO THIS IS ONE REASON TO USE THIS REPO
+  predicate: user => user && user.isVerified,
   ...
 });
 const UserIsAdmin = UserAuthWrapper({
-  authSelector: (state) => state.auth.user, // THE REASON TO USE THIS REPO
+  authSelector: (state) => state.auth.user, // BEING ABLE TO DO THIS IS ONE REASON TO USE THIS REPO
+  predicate: user => user && user.isVerified && user.roles && user.roles.indexOf('admin') !== -1,
   ...
 });
 
@@ -46,17 +39,64 @@ const UserIsAdmin = UserAuthWrapper({
 <Provider store={store}>
   <Router history={history}>
     <Route path="/" component={AppWrapper}>
-      <IndexRedirect to="/app" />
-      <Route path="/app" component={UserIsAuthenticated(App)} />
-      ...
-      <Route path="/user/profilechange" component={UserIsAuthenticated(UserProfileChange)} />
+      <Route path="/user/profilechange"
+        component={UserIsAuthenticated(UserProfileChange)} // USER MUST BE AUTHENTICATED
+      />
       <Route path="/user/roleschange"
-        component={UserIsAuthenticated(UserIsAdmin(UserRolesChange))}
+        component={UserIsAuthenticated(UserIsAdmin(UserRolesChange))} // AUTHENTICATED AND ADMIN
       />
     </Route>
   </Router>
 </Provider>
 ```
+
+`require('feathers-client').authentication` cannot be used as-is in this scenario
+or other scenarios involving Redux-based projects.
+
+`feathers-reduxify-authentication` wraps `require('feathers-client').authentication`
+so it behaves transparently as 100% compatible Redux code.
+
+### <a name="reduxifying"></a> Reduxifying
+
+You wrap `require('feathers-client').authentication`, insert the wrapper's reducer
+into Redux's `combineReducers`, and use the wrapper's action creators with Redux's `dispatch`.
+
+Voila, 100% Redux compatible with the current user retained in Redux's `store`.
+
+```javascript
+import feathers from 'feathers-client';
+import feathersReduxifyAuthentication from 'feathers-reduxify-authentication';
+
+// Configure feathers-client
+const app = feathers(). ... .configure(feathers.authentication({ ... });
+
+// Reduxify feathers-authentication
+feathersAuthentication = reduxifyAuthentication(app,
+  { isUserAuthorized: (user) => user.isVerified } // WE INSIST USER IS 'verified' TO AUTHENTICATE
+);
+
+// Add Redux reducer
+const rootReducer = combineReducers({ ..., auth: feathersAuthentication.reducer, ...});
+
+// Dispatch actions as needed. Params are the same as for feathers.authentication().
+dispatch(feathersAuthentication.authenticate({ type: 'local', email, password })).then().catch();
+dispatch(feathersAuthentication.logout());
+```
+
+### <a name="workingexample"></a> Working Example
+
+This package is used in
+[feathers-starter-react-redux-login-roles](https://github.com/eddyystop/feathers-starter-react-redux-login-roles)
+which implements full featured local authentication with user roles, email verification,
+forgotten passwords, etc.
+
+You can review how that project uses `feathers-reduxify-authentication`:
+- `client/feathers/index.js` configures feathers and reduxifies feathers-client.authentication.
+- `client/reducers/index.js` adds our authentication to Redux's reducers.
+Our current user will be stored at `state.auth.user`.
+- `client/index.js` sets up React routing and permissions.
+- `client/screens/Users/UserSignIn/FormContainer.js` contains code to both
+authenticate users and to log them out.
 
 ## <a name="motivation"></a> Motivation
 
@@ -90,15 +130,11 @@ const feathersReduxifyAuthentication = require('feathers-reduxify-authentication
 
 Each module is fully documented.
 
-This package does some of the heavy lifting in
-[feathers-starter-react-redux-login-roles](https://github.com/eddyystop/feathers-starter-react-redux-login-roles)
-Review `client/feathers/index.js`, `client/reducers/index.js` and `client/index.js`.
+Also see [Working example](#workingexample).
 
-## <a name="tests"></a> Tests
+## <a name="tests"></a> Build
 
-`npm test` to run tests.
-
-`npm run cover` to run tests plus coverage.
+`npm test` to transpile the ES6 code in `/src` to ES5 in `/lib`.
 
 ## <a name="contribution"></a> Contributing
 
