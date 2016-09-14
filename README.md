@@ -1,5 +1,5 @@
 # feathers-reduxify-authentication
-Wrap feathers.authentication so it works transparently with Redux, as well as authentication, authorization packages for React-Router.
+Wrap feathers-client.authentication so it works transparently with Redux, as well as authentication, authorization packages for React-Router.
 
 [![Build Status](https://travis-ci.org/eddyystop/feathers-reduxify-authentication.svg?branch=master)](https://travis-ci.org/eddyystop/feathers-reduxify-authentication)
 
@@ -7,8 +7,6 @@ Wrap feathers.authentication so it works transparently with Redux, as well as au
 - Dispatch feathers authentication and logout to Redux.
 - Integrate with `react-router` and `react-router-redux`.
 - Use popular Redux, React-Router authentication and authorization packages for React routing.
-
-Transfering production code here. Wait for 0.1.0.
 
 ## Code Examples
 
@@ -53,10 +51,10 @@ const UserIsAdmin = UserAuthWrapper({
 `require('feathers-client').authentication` cannot be used as-is in this scenario
 or other scenarios involving Redux-based projects.
 
-`feathers-reduxify-authentication` wraps `require('feathers-client').authentication`
+`feathers-reduxify-authentication` wraps feathers-client.authentication
 so it behaves transparently as 100% compatible Redux code.
 
-### <a name="reduxifying"></a> Reduxifying
+### <a name="reduxifying"></a> Making feathers-client.authentication work with Redux
 
 You wrap `require('feathers-client').authentication`, insert the wrapper's reducer
 into Redux's `combineReducers`, and use the wrapper's action creators with Redux's `dispatch`.
@@ -70,12 +68,12 @@ import feathersReduxifyAuthentication from 'feathers-reduxify-authentication';
 // Configure feathers-client
 const app = feathers(). ... .configure(feathers.authentication({ ... });
 
-// Reduxify feathers-authentication
+// Reduxify feathers-client.authentication
 feathersAuthentication = reduxifyAuthentication(app,
   { isUserAuthorized: (user) => user.isVerified } // WE INSIST USER IS 'verified' TO AUTHENTICATE
 );
 
-// Add Redux reducer
+// Add to Redux reducer
 const rootReducer = combineReducers({ ..., auth: feathersAuthentication.reducer, ...});
 
 // Dispatch actions as needed. Params are the same as for feathers.authentication().
@@ -95,8 +93,8 @@ You can review how that project uses `feathers-reduxify-authentication`:
 - `client/reducers/index.js` adds our authentication to Redux's reducers.
 Our current user will be stored at `state.auth.user`.
 - `client/index.js` sets up React routing and permissions.
-- `client/screens/Users/UserSignIn/FormContainer.js` contains code to both
-authenticate users and to log them out.
+- `client/screens/Users/UserSignIn/FormContainer.js`
+both authenticates users and logs them out.
 
 ## <a name="motivation"></a> Motivation
 
@@ -105,7 +103,7 @@ authenticate users and to log them out.
 - React is a great declarative UI.
 - React-Router is a complete routing library for React by React.
 - There are several packages
-which handle authentication and authorization for redux and React-Router.
+which handle authentication and authorization for React-Router and Redux.
 
 This repo let's everyone work together easily.
 
@@ -113,12 +111,12 @@ This repo let's everyone work together easily.
 
 Install [Nodejs](https://nodejs.org/en/).
 
-Run `npm install feathers-reduxify-authentication --save` in your project folder.
+Run `npm install --save-dev feathers-reduxify-authentication` in your project folder.
 
 You can then:
 
 ```javascript
-// ES5
+// ES6
 import feathersReduxifyAuthentication from 'feathers-reduxify-authentication';
 // ES5
 const feathersReduxifyAuthentication = require('feathers-reduxify-authentication');
@@ -130,7 +128,7 @@ const feathersReduxifyAuthentication = require('feathers-reduxify-authentication
 
 Each module is fully documented.
 
-Also see [Working example](#workingexample).
+Also see [Working example](#workingexample) above.
 
 ## <a name="tests"></a> Build
 
