@@ -11,7 +11,7 @@
     "lib": "lib"
   },
   "scripts": {
-    "copy": "rm -rf lib/ && cp -r src/ lib/",
+    "copy": "rm -rf lib/ && mkdir lib && cp -r src/ lib/",
     "babel": "babel src/ --out-dir lib --presets babel-preset-es2015,babel-preset-stage-0",
     "babel:watch": "babel src/ --watch --out-dir lib --presets babel-preset-es2015,babel-preset-stage-0",
     "mocha": "mocha test/  --reporter spec --compilers js:babel-core/register",
