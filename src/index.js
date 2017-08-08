@@ -81,7 +81,7 @@ export default (app, options = {}) => {
         [opts.isLoading]: false,
         [opts.isSignedIn]: true,
         [opts.user]: Object.assign({}, user, opts.assign),
-        [opts.token]: action.payload.token,
+        [opts.token]: action.payload[opts.token],
         ignorePendingAuth: false,
       };
     },
