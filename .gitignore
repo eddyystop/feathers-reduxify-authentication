@@ -55,6 +55,9 @@ pids
 # IntelliJ
 /out/
 
+## VSCode
+.vscode/
+
 ## Build
 
 # Grunt intermediate storage (http://gruntjs.com/creating-plugins#storing-task-files)
