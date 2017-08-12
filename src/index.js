@@ -111,6 +111,7 @@ export default (app, options = {}) => {
         [opts.isLoading]: null,
         [opts.isSignedIn]: false,
         [opts.user]: null,
+        [opts.token]: null,
         // Ignore the result if an authentication has been started
         ignorePendingAuth: state.isLoading,
       });
